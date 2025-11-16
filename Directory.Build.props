@@ -1,0 +1,5 @@
+<Project>
+  <!-- iPlus settings and overrides -->
+  <Import Project="../iPlus/build/Avalonia.Build.props" />
+  <!-- End iPlus settings and overrides -->
+</Project>

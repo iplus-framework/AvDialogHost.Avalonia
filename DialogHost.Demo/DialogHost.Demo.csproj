@@ -12,14 +12,23 @@
     <Folder Include="Models\"/>
     <AvaloniaResource Include="Assets\**"/>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Material.Icons.Avalonia" Version="2.1.0"/>
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
+    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="Avalonia.Desktop"/>
+    <PackageReference Include="Avalonia.Diagnostics"/>
+    <PackageReference Include="Avalonia.ReactiveUI"/>
+    <PackageReference Include="Avalonia.Themes.Fluent"/>
+    <PackageReference Include="Material.Icons.Avalonia"/>
   </ItemGroup>
+  <!-- iPlus settings and overrides -->
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../../iPlus/build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../../iPlus/build/AvaloniaBaseReactiveInclude.props" />
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <PackageReference Include="ReactiveUI"/>
+  </ItemGroup>
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
+  <!-- End iPlus settings and overrides -->
   <ItemGroup>
     <ProjectReference Include="..\DialogHost.Avalonia\DialogHost.Avalonia.csproj"/>
   </ItemGroup>

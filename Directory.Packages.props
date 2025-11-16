@@ -1,0 +1,5 @@
+<Project>
+  <!-- iPlus settings and overrides -->
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../iPlus/Directory.Packages.props" />
+  <!-- End iPlus settings and overrides -->  
+</Project>
