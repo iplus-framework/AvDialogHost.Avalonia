@@ -10,7 +10,7 @@
 
     <Application.Styles>
         <FluentTheme />
-        <avalonia:MaterialIconStyles />
+        <!--<avalonia:MaterialIconStyles />-->
         <dialogHostAvalonia:DialogHostStyles />
     </Application.Styles>
 </Application>

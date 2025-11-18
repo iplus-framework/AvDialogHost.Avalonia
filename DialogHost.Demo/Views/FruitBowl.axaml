@@ -53,7 +53,8 @@
         Margin="16 0"
         HorizontalAlignment="Right"
         Grid.Row="1"
-        Content="{avalonia:MaterialIconExt Kind=Plus, Size=22}" />
+        Content="MaterialIconExt Kind=Plus, Size=22" />
+        <!--Content="{avalonia:MaterialIconExt Kind=Plus, Size=22}" />-->
     </Grid>
   </dialogHostAvalonia:DialogHost>
 </UserControl>
