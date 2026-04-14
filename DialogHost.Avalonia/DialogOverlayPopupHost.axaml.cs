@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -8,7 +10,7 @@ using DialogHostAvalonia.Positioners;
 
 namespace DialogHostAvalonia;
 
-public class DialogOverlayPopupHost(Panel root) : ContentControl, ICustomKeyboardNavigation {
+public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation {
     public static readonly DirectProperty<DialogOverlayPopupHost, bool> IsOpenProperty =
         AvaloniaProperty.RegisterDirect<DialogOverlayPopupHost, bool>(
             nameof(IsOpen),
@@ -28,9 +30,24 @@ public class DialogOverlayPopupHost(Panel root) : ContentControl, ICustomKeyboar
             o => o.PopupPositioner,
             (o, v) => o.PopupPositioner = v);
 
+    private readonly DialogHost _host;
+
     private bool _disableOpeningAnimation;
     private bool _isOpen;
+
     private IDialogPopupPositioner? _popupPositioner;
+
+    internal readonly TaskCompletionSource<object?> DialogTaskCompletionSource = new();
+    internal readonly DialogSession Session;
+
+    static DialogOverlayPopupHost() {
+        AffectsArrange<DialogOverlayPopupHost>(PopupPositionerProperty);
+    }
+
+    public DialogOverlayPopupHost(DialogHost host, DialogOpenedEventHandler? open, DialogClosingEventHandler? closing) {
+        _host = host;
+        Session = new(host, this, open, closing);
+    }
 
     public bool IsOpen {
         get => _isOpen;
@@ -58,25 +75,22 @@ public class DialogOverlayPopupHost(Panel root) : ContentControl, ICustomKeyboar
 
     public IDialogPopupPositioner? PopupPositioner {
         get => _popupPositioner;
-        set {
-            SetAndRaise(PopupPositionerProperty, ref _popupPositioner, value);
-            UpdatePosition();
-        }
+        set => SetAndRaise(PopupPositionerProperty, ref _popupPositioner, value);
     }
 
-    public void Show() {
+    internal void Show() {
         if (Parent == null) {
-            root.Children.Add(this);
+            Debug.Assert(_host.Root is not null, "Show called before DialogHost template is applied");
+            _host.Root?.Children.Add(this);
         }
 
         // Set the minimum priority to allow overriding it everywhere
         ClearValue(IsActuallyOpenProperty);
         Focus();
-        UpdatePosition();
     }
 
-    public void Hide() {
-        root.Children.Remove(this);
+    internal void Hide() {
+        _host.Root?.Children.Remove(this);
     }
 
     protected override Size MeasureOverride(Size availableSize) {
@@ -96,24 +110,13 @@ public class DialogOverlayPopupHost(Panel root) : ContentControl, ICustomKeyboar
             Math.Max(0, finalRect.Height - margin.Top - margin.Bottom));
 
         var contentSize = new Size(
-            Math.Min(size.Width, DesiredSize.Width - margin.Left - margin.Right),
-            Math.Min(size.Height, DesiredSize.Height - margin.Top - margin.Bottom));
+            Math.Max(0, Math.Min(size.Width, DesiredSize.Width - margin.Left - margin.Right)),
+            Math.Max(0, Math.Min(size.Height, DesiredSize.Height - margin.Top - margin.Bottom)));
         var positioner = PopupPositioner ?? CenteredDialogPopupPositioner.Instance;
         var bounds = positioner.Update(size, contentSize);
 
         var (finalWidth, finalHeight) = ArrangeOverride(bounds.Size).Constrain(size);
         Bounds = new Rect(bounds.X + margin.Left, bounds.Y + margin.Top, finalWidth, finalHeight);
-    }
-
-
-    private void UpdatePosition() {
-        // Don't bother the positioner with layout system artifacts
-        // if (_positionerParameters.Size.Width == 0 || _positionerParameters.Size.Height == 0)
-        // return;
-        // if (Parent != null)
-        // {
-        // _popupPositioner.Update(_positionerParameters.);
-        // }
     }
 
     public (bool handled, IInputElement? next) GetNext(IInputElement element, NavigationDirection direction) {
@@ -138,5 +141,10 @@ public class DialogOverlayPopupHost(Panel root) : ContentControl, ICustomKeyboar
         }
 
         base.OnPropertyChanged(change);
+    }
+
+    internal void Pop() {
+        Hide();
+        Show();
     }
 }
