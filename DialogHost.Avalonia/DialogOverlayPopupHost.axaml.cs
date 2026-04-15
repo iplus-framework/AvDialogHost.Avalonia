@@ -10,21 +10,36 @@ using DialogHostAvalonia.Positioners;
 
 namespace DialogHostAvalonia;
 
+/// <summary>
+/// Overlay host control that displays dialog content and manages focus/navigation behavior while open.
+/// </summary>
 public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation {
+    /// <summary>
+    /// Identifies the <see cref="IsOpen"/> property.
+    /// </summary>
     public static readonly DirectProperty<DialogOverlayPopupHost, bool> IsOpenProperty =
         AvaloniaProperty.RegisterDirect<DialogOverlayPopupHost, bool>(
             nameof(IsOpen),
             o => o.IsOpen,
             (o, v) => o.IsOpen = v);
 
+    /// <summary>
+    /// Identifies the <see cref="IsActuallyOpen"/> property.
+    /// </summary>
     public static readonly StyledProperty<bool> IsActuallyOpenProperty =
         AvaloniaProperty.Register<DialogOverlayPopupHost, bool>(nameof(IsActuallyOpen), true);
 
+    /// <summary>
+    /// Identifies the <see cref="DisableOpeningAnimation"/> property.
+    /// </summary>
     public static readonly DirectProperty<DialogOverlayPopupHost, bool> DisableOpeningAnimationProperty =
         DialogHost.DisableOpeningAnimationProperty.AddOwner<DialogOverlayPopupHost>(
             host => host.DisableOpeningAnimation,
             (host, b) => host.DisableOpeningAnimation = b);
 
+    /// <summary>
+    /// Identifies the <see cref="PopupPositioner"/> property.
+    /// </summary>
     public static readonly DirectProperty<DialogOverlayPopupHost, IDialogPopupPositioner?> PopupPositionerProperty =
         DialogHost.PopupPositionerProperty.AddOwner<DialogOverlayPopupHost>(
             o => o.PopupPositioner,
@@ -44,11 +59,20 @@ public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation 
         AffectsArrange<DialogOverlayPopupHost>(PopupPositionerProperty);
     }
 
+    /// <summary>
+    /// Initializes a new overlay popup host for a dialog session.
+    /// </summary>
+    /// <param name="host">Owning dialog host.</param>
+    /// <param name="open">Optional callback invoked when dialog opens.</param>
+    /// <param name="closing">Optional callback invoked before dialog closes.</param>
     public DialogOverlayPopupHost(DialogHost host, DialogOpenedEventHandler? open, DialogClosingEventHandler? closing) {
         _host = host;
         Session = new(host, this, open, closing);
     }
 
+    /// <summary>
+    /// Gets or sets whether the popup host is open.
+    /// </summary>
     public bool IsOpen {
         get => _isOpen;
         set {
@@ -68,11 +92,17 @@ public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation 
         set => SetValue(IsActuallyOpenProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets whether opening animation is disabled for this popup.
+    /// </summary>
     public bool DisableOpeningAnimation {
         get => _disableOpeningAnimation;
         set => SetAndRaise(DisableOpeningAnimationProperty, ref _disableOpeningAnimation, value);
     }
 
+    /// <summary>
+    /// Gets or sets popup positioning strategy.
+    /// </summary>
     public IDialogPopupPositioner? PopupPositioner {
         get => _popupPositioner;
         set => SetAndRaise(PopupPositionerProperty, ref _popupPositioner, value);
@@ -93,6 +123,7 @@ public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation 
         _host.Root?.Children.Remove(this);
     }
 
+    /// <inheritdoc />
     protected override Size MeasureOverride(Size availableSize) {
         if (PopupPositioner is IDialogPopupPositionerConstrainable constrainable) {
             return base.MeasureOverride(constrainable.Constrain(availableSize));
@@ -119,6 +150,14 @@ public class DialogOverlayPopupHost : ContentControl, ICustomKeyboardNavigation 
         Bounds = new Rect(bounds.X + margin.Left, bounds.Y + margin.Top, finalWidth, finalHeight);
     }
 
+    /// <summary>
+    /// Returns the next focus target while the popup is active.
+    /// </summary>
+    /// <param name="element">Current focused element.</param>
+    /// <param name="direction">Requested navigation direction.</param>
+    /// <returns>
+    /// A tuple indicating whether navigation was handled and the next focus target.
+    /// </returns>
     public (bool handled, IInputElement? next) GetNext(IInputElement element, NavigationDirection direction) {
         // If current element isn't this popup host - ignoring
         if (!element.Equals(this)) {

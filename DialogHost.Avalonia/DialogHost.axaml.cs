@@ -802,7 +802,7 @@ public class DialogHost : ContentControl {
         }
     }
 
-    private void ContentCoverGrid_OnPointerReleased(object sender, PointerReleasedEventArgs e) {
+    private void ContentCoverGrid_OnPointerReleased(object? sender, PointerReleasedEventArgs e) {
         if (CloseOnClickAway && CurrentSession != null) {
             InternalClose(CloseOnClickAwayParameter);
         }

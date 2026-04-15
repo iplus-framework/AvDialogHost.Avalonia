@@ -5,20 +5,20 @@ using DialogHostAvalonia.Utilities;
 namespace DialogHostAvalonia;
 
 internal class DialogHostCommandImpl : ICommand {
-    private readonly Func<object, bool> _canExecuteFunc;
-    private readonly Action<object> _executeFunc;
+    private readonly Func<object?, bool> _canExecuteFunc;
+    private readonly Action<object?> _executeFunc;
 
-    public DialogHostCommandImpl(Action<object> executeFunc, Func<object, bool>? canExecuteFunc, IObservable<bool> canExecuteChangedObservable) {
+    public DialogHostCommandImpl(Action<object?> executeFunc, Func<object?, bool>? canExecuteFunc, IObservable<bool> canExecuteChangedObservable) {
         _canExecuteFunc = canExecuteFunc ?? (o => true) ;
         _executeFunc = executeFunc;
         canExecuteChangedObservable.Subscribe(_ => OnCanExecuteChanged());
     }
 
-    public bool CanExecute(object parameter) {
+    public bool CanExecute(object? parameter) {
         return _canExecuteFunc(parameter);
     }
 
-    public void Execute(object parameter) {
+    public void Execute(object? parameter) {
         _executeFunc(parameter);
     }
 

@@ -10,25 +10,43 @@ namespace DialogHostAvalonia.Positioners;
 /// Default values for <see cref="HorizontalAlignment"/> and <see cref="VerticalAlignment"/> is <c>Stretch</c> and it will be act TopLeft alignment
 /// </remarks>
 public class AlignmentDialogPopupPositioner : AvaloniaObject, IDialogPopupPositioner, IDialogPopupPositionerConstrainable {
+    /// <summary>
+    /// Identifies the <see cref="HorizontalAlignment"/> property.
+    /// </summary>
     public static readonly StyledProperty<HorizontalAlignment> HorizontalAlignmentProperty
         = Layoutable.HorizontalAlignmentProperty.AddOwner<AlignmentDialogPopupPositioner>();
 
+    /// <summary>
+    /// Identifies the <see cref="VerticalAlignment"/> property.
+    /// </summary>
     public static readonly StyledProperty<VerticalAlignment> VerticalAlignmentProperty
         = Layoutable.VerticalAlignmentProperty.AddOwner<AlignmentDialogPopupPositioner>();
 
+    /// <summary>
+    /// Identifies the <see cref="Margin"/> property.
+    /// </summary>
     public static readonly StyledProperty<Thickness> MarginProperty
         = Layoutable.MarginProperty.AddOwner<AlignmentDialogPopupPositioner>();
 
+    /// <summary>
+    /// Gets or sets horizontal alignment of the popup within available bounds.
+    /// </summary>
     public HorizontalAlignment HorizontalAlignment {
         get => GetValue(HorizontalAlignmentProperty);
         set => SetValue(HorizontalAlignmentProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets vertical alignment of the popup within available bounds.
+    /// </summary>
     public VerticalAlignment VerticalAlignment {
         get => GetValue(VerticalAlignmentProperty);
         set => SetValue(VerticalAlignmentProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the popup margin inside the anchor rectangle.
+    /// </summary>
     public Thickness Margin {
         get => GetValue(MarginProperty);
         set => SetValue(MarginProperty, value);
